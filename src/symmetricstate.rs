@@ -1,6 +1,6 @@
-use constants::{CIPHERKEYLEN, MAXHASHLEN};
-use types::Hash;
-use cipherstate::CipherState;
+use crate::constants::{CIPHERKEYLEN, MAXHASHLEN};
+use crate::types::Hash;
+use crate::cipherstate::CipherState;
 
 #[derive(Copy, Clone)]
 struct Inner {
@@ -27,7 +27,7 @@ pub struct SymmetricState {
 }
 
 impl SymmetricState {
-    pub fn new(cipherstate: CipherState, hasher: Box<Hash>) -> SymmetricState {
+    pub fn new(cipherstate: CipherState, hasher: Box<dyn Hash>) -> SymmetricState {
         SymmetricState {
             cipherstate,
             hasher,

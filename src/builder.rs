@@ -1,11 +1,11 @@
-use constants::{PSKLEN, MAXDHLEN};
-use handshakestate::HandshakeState;
-use cipherstate::{CipherState, CipherStates};
-use session::Session;
-use utils::Toggle;
-use params::NoiseParams;
-use resolvers::CryptoResolver;
-use error::{SnowError, InitStage, Prerequisite};
+use crate::constants::{PSKLEN, MAXDHLEN};
+use crate::handshakestate::HandshakeState;
+use crate::cipherstate::{CipherState, CipherStates};
+use crate::session::Session;
+use crate::utils::Toggle;
+use crate::params::NoiseParams;
+use crate::resolvers::CryptoResolver;
+use crate::error::{SnowError, InitStage, Prerequisite};
 
 /// The default pure-rust crypto implementation resolver.
 
@@ -27,7 +27,7 @@ use error::{SnowError, InitStage, Prerequisite};
 /// ```
 pub struct Builder<'builder> {
     params:   NoiseParams,
-    resolver: Box<CryptoResolver>,
+    resolver: Box<dyn CryptoResolver>,
     s:        Option<&'builder [u8]>,
     e_fixed:  Option<&'builder [u8]>,
     rs:       Option<&'builder [u8]>,
@@ -39,7 +39,7 @@ impl<'builder> Builder<'builder> {
     /// Create a Builder with the default crypto resolver.
     #[cfg(all(feature = "default-resolver", not(any(feature = "ring-accelerated", feature = "hacl-star-accelerated"))))]
     pub fn new(params: NoiseParams) -> Self {
-        use ::resolvers::DefaultResolver;
+        use crate::resolvers::DefaultResolver;
 
         Self::with_resolver(params, Box::new(DefaultResolver::default()))
     }
@@ -59,7 +59,7 @@ impl<'builder> Builder<'builder> {
     }
 
     /// Create a Builder with a custom crypto resolver.
-    pub fn with_resolver(params: NoiseParams, resolver: Box<CryptoResolver>) -> Self {
+    pub fn with_resolver(params: NoiseParams, resolver: Box<dyn CryptoResolver>) -> Self {
         Builder {
             params,
             resolver,

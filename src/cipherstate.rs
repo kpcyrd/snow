@@ -1,15 +1,15 @@
-use constants::TAGLEN;
-use error::{SnowError, InitStage};
-use types::Cipher;
+use crate::constants::TAGLEN;
+use crate::error::{SnowError, InitStage};
+use crate::types::Cipher;
 
 pub struct CipherState {
-    cipher : Box<Cipher>,
+    cipher : Box<dyn Cipher>,
     n : u64,
     has_key : bool,
 }
 
 impl CipherState {
-    pub fn new(cipher: Box<Cipher>) -> Self {
+    pub fn new(cipher: Box<dyn Cipher>) -> Self {
         Self {
             cipher,
             n: 0,

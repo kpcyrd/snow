@@ -1,12 +1,12 @@
-use constants::{PSKLEN, TAGLEN, MAXMSGLEN, MAXDHLEN};
-use utils::Toggle;
-use types::{Dh, Hash, Random};
-use cipherstate::{CipherState, CipherStates};
+use crate::constants::{PSKLEN, TAGLEN, MAXMSGLEN, MAXDHLEN};
+use crate::utils::Toggle;
+use crate::types::{Dh, Hash, Random};
+use crate::cipherstate::{CipherState, CipherStates};
 #[cfg(feature = "nightly")] use std::convert::TryFrom;
 #[cfg(not(feature = "nightly"))] use utils::TryFrom;
-use symmetricstate::SymmetricState;
-use params::{HandshakeTokens, MessagePatterns, NoiseParams, Token};
-use error::{SnowError, InitStage, StateProblem};
+use crate::symmetricstate::SymmetricState;
+use crate::params::{HandshakeTokens, MessagePatterns, NoiseParams, Token};
+use crate::error::{SnowError, InitStage, StateProblem};
 use std::fmt;
 
 /// A state machine encompassing the handshake phase of a Noise session.
@@ -16,11 +16,11 @@ use std::fmt;
 ///
 /// See: http://noiseprotocol.org/noise.html#the-handshakestate-object
 pub struct HandshakeState {
-    pub(crate) rng              : Box<Random>,
+    pub(crate) rng              : Box<dyn Random>,
     pub(crate) symmetricstate   : SymmetricState,
     pub(crate) cipherstates     : CipherStates,
-    pub(crate) s                : Toggle<Box<Dh>>,
-    pub(crate) e                : Toggle<Box<Dh>>,
+    pub(crate) s                : Toggle<Box<dyn Dh>>,
+    pub(crate) e                : Toggle<Box<dyn Dh>>,
     pub(crate) fixed_ephemeral  : bool,
     pub(crate) rs               : Toggle<[u8; MAXDHLEN]>,
     pub(crate) re               : Toggle<[u8; MAXDHLEN]>,
@@ -35,11 +35,11 @@ pub struct HandshakeState {
 impl HandshakeState {
     #[cfg_attr(feature = "cargo-clippy", allow(too_many_arguments))]
     pub fn new<'a>(
-        rng             : Box<Random>,
+        rng             : Box<dyn Random>,
         cipherstate     : CipherState,
-        hasher          : Box<Hash>,
-        s               : Toggle<Box<Dh>>,
-        e               : Toggle<Box<Dh>>,
+        hasher          : Box<dyn Hash>,
+        s               : Toggle<Box<dyn Dh>>,
+        e               : Toggle<Box<dyn Dh>>,
         fixed_ephemeral : bool,
         rs              : Toggle<[u8; MAXDHLEN]>,
         re              : Toggle<[u8; MAXDHLEN]>,

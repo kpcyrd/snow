@@ -1,26 +1,21 @@
-extern crate crypto;
-extern crate blake2_rfc;
-extern crate chacha20_poly1305_aead;
-extern crate x25519_dalek;
-extern crate rand;
-
-use self::blake2_rfc::blake2b::Blake2b;
-use self::blake2_rfc::blake2s::Blake2s;
-use self::crypto::digest::Digest;
-use self::crypto::sha2::{Sha256, Sha512};
-use self::crypto::aes::KeySize;
-use self::crypto::aes_gcm::AesGcm;
-use self::crypto::aead::{AeadEncryptor, AeadDecryptor};
-use self::rand::{OsRng, RngCore};
-use self::x25519_dalek as x25519;
-
+use arrayref::array_ref;
 use byteorder::{ByteOrder, BigEndian, LittleEndian};
+use blake2_rfc::blake2b::Blake2b;
+use blake2_rfc::blake2s::Blake2s;
+use crypto::digest::Digest;
+use crypto::sha2::{Sha256, Sha512};
+use crypto::aes::KeySize;
+use crypto::aes_gcm::AesGcm;
+use crypto::aead::{AeadEncryptor, AeadDecryptor};
+use rand::{OsRng, RngCore};
+use x25519_dalek as x25519;
 
-use types::{Cipher, Dh, Hash, Random};
-use constants::TAGLEN;
-use params::{CipherChoice, DHChoice, HashChoice};
 use std::io::{Cursor, Write};
-use super::CryptoResolver;
+
+use crate::resolvers::CryptoResolver;
+use crate::types::{Cipher, Dh, Hash, Random};
+use crate::constants::TAGLEN;
+use crate::params::{CipherChoice, DHChoice, HashChoice};
 
 /// The default resolver provided by snow. This resolver is designed to
 /// support as many of the Noise spec primitives as possible with
@@ -29,18 +24,18 @@ use super::CryptoResolver;
 pub struct DefaultResolver;
 
 impl CryptoResolver for DefaultResolver {
-    fn resolve_rng(&self) -> Option<Box<Random>> {
+    fn resolve_rng(&self) -> Option<Box<dyn Random>> {
         Some(Box::new(RandomOs::default()))
     }
 
-    fn resolve_dh(&self, choice: &DHChoice) -> Option<Box<Dh>> {
+    fn resolve_dh(&self, choice: &DHChoice) -> Option<Box<dyn Dh>> {
         match *choice {
             DHChoice::Curve25519 => Some(Box::new(Dh25519::default())),
             _                    => None,
         }
     }
 
-    fn resolve_hash(&self, choice: &HashChoice) -> Option<Box<Hash>> {
+    fn resolve_hash(&self, choice: &HashChoice) -> Option<Box<dyn Hash>> {
         match *choice {
             HashChoice::SHA256  => Some(Box::new(HashSHA256::default())),
             HashChoice::SHA512  => Some(Box::new(HashSHA512::default())),
@@ -49,7 +44,7 @@ impl CryptoResolver for DefaultResolver {
         }
     }
 
-    fn resolve_cipher(&self, choice: &CipherChoice) -> Option<Box<Cipher>> {
+    fn resolve_cipher(&self, choice: &CipherChoice) -> Option<Box<dyn Cipher>> {
         match *choice {
             CipherChoice::ChaChaPoly => Some(Box::new(CipherChaChaPoly::default())),
             CipherChoice::AESGCM     => Some(Box::new(CipherAESGCM::default())),
@@ -378,14 +373,12 @@ impl Hash for HashBLAKE2s {
 
 #[cfg(test)]
 mod tests {
+    use crypto::poly1305::Poly1305;
+    use crypto::mac::Mac;
 
-    extern crate hex;
-
-    use types::*;
+    use crate::types::*;
     use super::*;
     use self::hex::FromHex;
-    use super::crypto::poly1305::Poly1305;
-    use super::crypto::mac::Mac;
 
     #[test]
     fn test_sha256() {

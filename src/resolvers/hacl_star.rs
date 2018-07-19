@@ -1,12 +1,11 @@
-extern crate hacl_star;
-
+use arrayref::{array_ref, array_mut_ref};
 use std::mem;
-use super::CryptoResolver;
-use params::{DHChoice, HashChoice, CipherChoice};
-use types::{Random, Dh, Hash, Cipher};
-use self::hacl_star::curve25519::{self, SecretKey, PublicKey};
-use self::hacl_star::sha2::{Sha256, Sha512};
-use self::hacl_star::chacha20poly1305;
+use crate::resolvers::CryptoResolver;
+use crate::params::{DHChoice, HashChoice, CipherChoice};
+use crate::types::{Random, Dh, Hash, Cipher};
+use hacl_star::curve25519::{self, SecretKey, PublicKey};
+use hacl_star::sha2::{Sha256, Sha512};
+use hacl_star::chacha20poly1305;
 
 use byteorder::{ByteOrder, LittleEndian};
 
@@ -16,11 +15,11 @@ use byteorder::{ByteOrder, LittleEndian};
 pub struct HaclStarResolver;
 
 impl CryptoResolver for HaclStarResolver {
-    fn resolve_rng(&self) -> Option<Box<Random>> {
+    fn resolve_rng(&self) -> Option<Box<dyn Random>> {
         None
     }
 
-    fn resolve_dh(&self, choice: &DHChoice) -> Option<Box<Dh>> {
+    fn resolve_dh(&self, choice: &DHChoice) -> Option<Box<dyn Dh>> {
         if let DHChoice::Curve25519 = choice {
             Some(Box::new(Dh25519::default()))
         } else {
@@ -28,7 +27,7 @@ impl CryptoResolver for HaclStarResolver {
         }
     }
 
-    fn resolve_hash(&self, choice: &HashChoice) -> Option<Box<Hash>> {
+    fn resolve_hash(&self, choice: &HashChoice) -> Option<Box<dyn Hash>> {
         match *choice {
             HashChoice::SHA256 => Some(Box::new(HashSHA256::default())),
             HashChoice::SHA512 => Some(Box::new(HashSHA512::default())),
@@ -36,7 +35,7 @@ impl CryptoResolver for HaclStarResolver {
         }
     }
 
-    fn resolve_cipher(&self, choice: &CipherChoice) -> Option<Box<Cipher>> {
+    fn resolve_cipher(&self, choice: &CipherChoice) -> Option<Box<dyn Cipher>> {
         match *choice {
             CipherChoice::ChaChaPoly => Some(Box::new(CipherChaChaPoly::default())),
             _                        => None,

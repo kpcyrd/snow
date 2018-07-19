@@ -1,6 +1,6 @@
 //! The traits for cryptographic implementations that can be used by Noise.
 
-use constants::{MAXBLOCKLEN, MAXHASHLEN};
+use crate::constants::{MAXBLOCKLEN, MAXHASHLEN};
 
 /// CSPRNG operations
 pub trait Random : Send + Sync {

@@ -1,12 +1,12 @@
 extern crate ring;
 
-use super::CryptoResolver;
 use byteorder::{ByteOrder, BigEndian, LittleEndian};
 use self::ring::aead;
 use self::ring::digest;
-use constants::TAGLEN;
-use params::{DHChoice, HashChoice, CipherChoice};
-use types::{Random, Dh, Hash, Cipher};
+use crate::constants::TAGLEN;
+use crate::params::{DHChoice, HashChoice, CipherChoice};
+use crate::resolvers::CryptoResolver;
+use crate::types::{Random, Dh, Hash, Cipher};
 
 /// A resolver that chooses [ring](https://github.com/briansmith/ring)-backed
 /// primitives when available.
@@ -15,15 +15,15 @@ pub struct RingResolver;
 
 #[cfg(feature = "ring")]
 impl CryptoResolver for RingResolver {
-    fn resolve_rng(&self) -> Option<Box<Random>> {
+    fn resolve_rng(&self) -> Option<Box<dyn Random>> {
         None
     }
 
-    fn resolve_dh(&self, _choice: &DHChoice) -> Option<Box<Dh>> {
+    fn resolve_dh(&self, _choice: &DHChoice) -> Option<Box<dyn Dh>> {
         None
     }
 
-    fn resolve_hash(&self, choice: &HashChoice) -> Option<Box<Hash>> {
+    fn resolve_hash(&self, choice: &HashChoice) -> Option<Box<dyn Hash>> {
         match *choice {
             HashChoice::SHA256 => Some(Box::new(HashSHA256::default())),
             HashChoice::SHA512 => Some(Box::new(HashSHA512::default())),
@@ -31,7 +31,7 @@ impl CryptoResolver for RingResolver {
         }
     }
 
-    fn resolve_cipher(&self, choice: &CipherChoice) -> Option<Box<Cipher>> {
+    fn resolve_cipher(&self, choice: &CipherChoice) -> Option<Box<dyn Cipher>> {
         match *choice {
             CipherChoice::AESGCM     => Some(Box::new(CipherAESGCM::default())),
             CipherChoice::ChaChaPoly => Some(Box::new(CipherChaChaPoly::default())),

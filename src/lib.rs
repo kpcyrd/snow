@@ -53,17 +53,10 @@
 //! [`Session`]: enum.Session.html
 
 #![warn(missing_docs)]
+#![feature(rust_2018_preview, use_extern_macros)]
 #![cfg_attr(feature = "nightly", feature(try_from))]
 
-#[cfg(any(feature = "default-resolver", feature = "hacl-star-resolver"))]
-#[macro_use]
-extern crate arrayref;
-
-#[macro_use] extern crate static_slice;
 #[macro_use] extern crate failure_derive;
-extern crate byteorder;
-extern crate failure;
-extern crate smallvec;
 
 #[macro_use]
 pub mod error;
@@ -81,6 +74,6 @@ pub mod params;
 pub mod types;
 pub mod resolvers;
 
-pub use error::SnowError;
-pub use builder::Builder;
-pub use session::Session;
+pub use crate::error::SnowError;
+pub use crate::builder::Builder;
+pub use crate::session::Session;

@@ -1,8 +1,9 @@
 #[cfg(feature = "nightly")] use std::convert::{TryFrom};
 #[cfg(not(feature = "nightly"))] use utils::{TryFrom};
-use error::{SnowError, PatternProblem};
+use crate::error::{SnowError, PatternProblem};
 use std::str::FromStr;
 use smallvec::SmallVec;
+use static_slice::static_slice;
 
 macro_rules! message_vec {
     ($($item:expr),*) => ({
@@ -244,7 +245,7 @@ use self::HandshakePattern::*;
 
 type Patterns = (PremessagePatterns, PremessagePatterns, MessagePatterns);
 
-impl<'a> TryFrom<&'a HandshakeChoice> for HandshakeTokens {
+impl TryFrom<&'a HandshakeChoice> for HandshakeTokens {
     type Error = SnowError;
 
     fn try_from(handshake: &'a HandshakeChoice) -> Result<Self, Self::Error> {

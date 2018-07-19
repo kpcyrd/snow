@@ -1,3 +1,5 @@
+cargo-features = ["edition"]
+
 [package]
 name = "snow"
 description = "A pure-rust implementation of the Noise Protocol Framework"
@@ -10,6 +12,7 @@ license = "Unlicense"
 categories = ["cryptography"]
 readme = "README.md"
 keywords = ["noise", "protocol", "crypto"]
+edition = "2018"
 
 [features]
 default = ["default-resolver"]
